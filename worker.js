@@ -25,6 +25,7 @@ const memCache = new Map();        // isolate 内存缓存
 const PLATFORM = {
   '60s': '60秒读世界', weibo: '微博热搜', zhihu: '知乎热榜',
   toutiao: '今日头条', douyin: '抖音热点', baidu: '百度热搜',
+  bilibili: 'B站热门',  jianshu: '简书热门',
 };
 
 function buildConfig(env) {
@@ -41,18 +42,39 @@ function buildConfig(env) {
         { source: '少数派',    url: rh('/sspai/matrix') },
         { source: '博客园',    url: 'https://feed.cnblogs.com/blog/sitehome/rss' },
         { source: 'V2EX',      url: 'https://www.v2ex.com/feed/tab/hot.xml' },
+        { source: '开源中国',  url: rh('/oschina/news') },
+        { source: '阮一峰周刊',url: rh('/ruanyifeng/weekly') },
+        { source: 'IT之家',   url: 'https://www.ithome.com/rss/' },
+        { source: 'InfoQ',    url: rh('/infoq/recommend') },
+        { source: 'Solidot',  url: 'https://solidot.org/feed' },
       ]},
       { id: 'tech', name: '科技IT', sixty: [], rss: [
-        { source: '36氪',   url: rh('/36kr/hot-list') },
-        { source: '少数派', url: rh('/sspai/matrix') },
-        { source: 'IT之家', url: 'https://www.ithome.com/rss/' },
+        { source: '36氪',     url: rh('/36kr/hot-list') },
+        { source: '少数派',   url: rh('/sspai/matrix') },
+        { source: 'IT之家',   url: 'https://www.ithome.com/rss/' },
+        { source: '虎嗅',     url: rh('/huxiu/article') },
+        { source: '极客公园', url: rh('/geekpark/breakingnews') },
+        { source: '爱范儿',   url: rh('/ifanr') },
+        { source: '钛媒体',   url: rh('/tmtpost') },
+        { source: '品玩',     url: rh('/pingwest') },
+        { source: 'Linux中国',url: 'https://linux.cn/rss.xml' },
       ]},
       { id: 'news', name: '资讯',   sixty: [], rss: [
         { source: '澎湃新闻', url: rh('/thepaper/featured') },
         { source: '知乎日报', url: rh('/zhihu/daily') },
-        { source: 'Linux中国', url: 'https://linux.cn/rss.xml' },
+        { source: '界面新闻', url: rh('/jiemian') },
+        { source: '网易新闻', url: rh('/163/news') },
+        { source: '新浪新闻', url: rh('/sina/news') },
+        { source: 'BBC中文',  url: rh('/bbc/chinese') },
+        { source: 'Reuters', url: rh('/reuters') },
+        { source: 'Solidot', url: 'https://solidot.org/feed' },
       ]},
-      { id: 'hot',  name: '热搜',   sixty: ['toutiao', 'weibo', 'baidu', 'douyin'], rss: [] },
+      { id: 'hot',  name: '热搜',   sixty: ['toutiao', 'weibo', 'baidu', 'douyin', 'zhihu', '60s'], rss: [
+        { source: '知乎热榜', url: rh('/zhihu/hot') },
+        { source: 'B站热门',  url: rh('/bilibili/hot') },
+        { source: '豆瓣热议', url: rh('/douban/group') },
+        { source: '简书热门', url: rh('/jianshu/home') },
+      ]},
     ],
   };
 }
@@ -73,7 +95,7 @@ function tag(block, name) {
   return m ? m[1] : '';
 }
 
-async function fetchText(url, ms = 12000) {
+async function fetchText(url, ms = 15000) {
   const ctrl = new AbortController();
   const id = setTimeout(() => ctrl.abort(), ms);
   try {
@@ -86,7 +108,7 @@ async function fetchText(url, ms = 12000) {
 /* ---------- RSS 解析（正则，零依赖） ---------- */
 function parseRss(xml, source) {
   const blocks = xml.match(/<(item|entry)\b[\s\S]*?<\/\1>/gi) || [];
-  return blocks.slice(0, 20).map((b) => {
+  return blocks.slice(0, 50).map((b) => {
     const title = stripTags(tag(b, 'title'));
     let link = stripTags(tag(b, 'link'));
     if (!link) { const m = /<link[^>]+href=["']([^"']+)["']/i.exec(b); if (m) link = m[1]; }
@@ -134,19 +156,20 @@ async function fetchFeed(feed) {
 }
 
 /* ---------- 聚合 ---------- */
-async function aggregate(cat, cfg) {
+async function aggregate(cat, cfg, limit = 0) {
   const results = await Promise.all([
     ...cat.sixty.map((p) => fetchSixty(p, cfg)),
     ...cat.rss.map(fetchFeed),
   ]);
-  const seen = new Set(); const items = [];
+  const seenTitle = new Set(); const seenLink = new Set(); const items = [];
   for (const arr of results) for (const it of arr) {
-    const k = it.title.replace(/[\s\p{P}]/gu, '').toLowerCase();
-    if (!k || seen.has(k)) continue;
-    seen.add(k); items.push(it);
+    const tk = it.title.replace(/[\s\p{P}]/gu, '').toLowerCase();
+    const lk = it.link.replace(/[?#].*$/, '').toLowerCase();
+    if (!tk || seenTitle.has(tk) || seenLink.has(lk)) continue;
+    seenTitle.add(tk); seenLink.add(lk); items.push(it);
   }
   items.sort((a, b) => b.hot - a.hot);
-  return items;
+  return limit > 0 ? items.slice(0, limit) : items;
 }
 
 /* ---------- 正文提取（轻量，无 jsdom） ---------- */
@@ -197,11 +220,15 @@ export default {
     if (path === '/api/news') {
       const id = url.searchParams.get('cat') || cfg.categories[0].id;
       const force = url.searchParams.get('force') === '1';
+      const limit = Math.min(parseInt(url.searchParams.get('limit') || '0', 10) || 0, 200);
       const cat = cfg.categories.find((c) => c.id === id);
       if (!cat) return json({ error: '未知分类' }, cfg, 404);
       const hit = memCache.get('news:' + id);
-      if (hit && !force && Date.now() - hit.ts < CACHE_TTL) return json(hit.data, cfg);
-      const items = await aggregate(cat, cfg);
+      if (hit && !force && Date.now() - hit.ts < CACHE_TTL) {
+        const items = limit > 0 ? hit.data.items.slice(0, limit) : hit.data.items;
+        return json({ ...hit.data, count: items.length, items }, cfg);
+      }
+      const items = await aggregate(cat, cfg, limit);
       const data = { cat: id, updated: new Date().toISOString(), sources: [...new Set(items.map((i) => i.source))], count: items.length, items };
       if (items.length) memCache.set('news:' + id, { ts: Date.now(), data });
       return json(data, cfg);
