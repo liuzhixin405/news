@@ -1,0 +1,9 @@
+name = "news-hub-api"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+# 环境变量（也可在 Workers 控制台 → 设置 → 变量 里改）
+[vars]
+RSSHUB_BASE = "https://rsshub.app"      # 有自托管 RSSHub 就换成它，如 https://rss.yourdomain.com
+SIXTY_BASE  = "https://60s.viki.moe/v2"
+ALLOW_ORIGIN = "*"                       # 生产建议填你的 Pages 域名，如 https://news.pages.dev
