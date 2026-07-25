@@ -1,4 +1,4 @@
-name = "news-hub-api"
+name = "news"
 main = "worker.js"
 compatibility_date = "2026-01-01"
 
