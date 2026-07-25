@@ -62,18 +62,36 @@ function buildConfig(env) {
       { id: 'news', name: '资讯',   sixty: [], rss: [
         { source: '澎湃新闻', url: rh('/thepaper/featured') },
         { source: '知乎日报', url: rh('/zhihu/daily') },
-        { source: '界面新闻', url: rh('/jiemian') },
-        { source: '网易新闻', url: rh('/163/news') },
-        { source: '新浪新闻', url: rh('/sina/news') },
-        { source: 'BBC中文',  url: rh('/bbc/chinese') },
-        { source: 'Reuters', url: rh('/reuters') },
+        { source: '联合早报', url: rh('/zaobao/recommend') },
+        { source: '人民网',   url: rh('/people/xjp') },
+        { source: '新华网',   url: rh('/xinhua') },
         { source: 'Solidot', url: 'https://solidot.org/feed' },
       ]},
-      { id: 'hot',  name: '热搜',   sixty: ['toutiao', 'weibo', 'baidu', 'douyin', 'zhihu', '60s'], rss: [
+      { id: 'hot',  name: '热搜',   sixty: [], rss: [
         { source: '知乎热榜', url: rh('/zhihu/hot') },
         { source: 'B站热门',  url: rh('/bilibili/hot') },
-        { source: '豆瓣热议', url: rh('/douban/group') },
-        { source: '简书热门', url: rh('/jianshu/home') },
+        { source: '微博热搜', url: rh('/weibo/hot') },
+        { source: '百度热搜', url: rh('/baidu/hot') },
+        { source: '豆瓣电影', url: rh('/douban/movie/playing') },
+        { source: '历史上的今天', url: rh('/history') },
+      ]},
+      { id: 'world', name: '国际',   sixty: [], rss: [
+        { source: 'BBC',        url: 'https://feeds.bbci.co.uk/news/rss.xml' },
+        { source: 'Reuters',    url: 'https://www.reutersagency.com/feed/' },
+        { source: 'Guardian',   url: 'https://www.theguardian.com/world/rss' },
+        { source: 'NYT',        url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml' },
+        { source: 'Hacker News',url: 'https://hnrss.org/frontpage' },
+        { source: 'TechCrunch', url: 'https://techcrunch.com/feed/' },
+        { source: 'Ars Technica',url: 'https://feeds.arstechnica.com/arstechnica/index' },
+        { source: 'Wired',      url: 'https://www.wired.com/feed/rss' },
+        { source: 'CNBC',       url: 'https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10001147' },
+      ]},
+      { id: 'finance', name: '财经',   sixty: [], rss: [
+        { source: '华尔街见闻', url: rh('/wallstreetcn/news/global') },
+        { source: '财新网',   url: rh('/caixin/finance') },
+        { source: 'FT中文网', url: rh('/ft/chinese') },
+        { source: 'Bloomberg', url: 'https://www.bloomberg.com/feed/markets' },
+        { source: 'CNBC',     url: 'https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10001147' },
       ]},
     ],
   };
@@ -248,6 +266,6 @@ export default {
       }
     }
 
-    return json({ error: 'Not Found', routes: ['/api/health', '/api/categories', '/api/news?cat=dev', '/api/article?url='] }, cfg, 404);
+    return json({ error: 'Not Found', routes: ['/api/health', '/api/categories', '/api/news?cat=dev', '/api/news?cat=world', '/api/news?cat=finance', '/api/article?url='] }, cfg, 404);
   },
 };
