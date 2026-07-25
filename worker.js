@@ -59,22 +59,6 @@ function buildConfig(env) {
         { source: '品玩',     url: rh('/pingwest') },
         { source: 'Linux中国',url: 'https://linux.cn/rss.xml' },
       ]},
-      { id: 'news', name: '资讯',   sixty: [], rss: [
-        { source: '澎湃新闻', url: rh('/thepaper/featured') },
-        { source: '知乎日报', url: rh('/zhihu/daily') },
-        { source: '联合早报', url: rh('/zaobao/recommend') },
-        { source: '人民网',   url: rh('/people/xjp') },
-        { source: '新华网',   url: rh('/xinhua') },
-        { source: 'Solidot', url: 'https://solidot.org/feed' },
-      ]},
-      { id: 'hot',  name: '热搜',   sixty: [], rss: [
-        { source: '知乎热榜', url: rh('/zhihu/hot') },
-        { source: 'B站热门',  url: rh('/bilibili/hot') },
-        { source: '微博热搜', url: rh('/weibo/hot') },
-        { source: '百度热搜', url: rh('/baidu/hot') },
-        { source: '豆瓣电影', url: rh('/douban/movie/playing') },
-        { source: '历史上的今天', url: rh('/history') },
-      ]},
       { id: 'world', name: '国际',   sixty: [], rss: [
         { source: 'BBC',        url: 'https://feeds.bbci.co.uk/news/rss.xml' },
         { source: 'Reuters',    url: 'https://www.reutersagency.com/feed/' },
