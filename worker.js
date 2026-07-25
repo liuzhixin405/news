@@ -77,6 +77,21 @@ function buildConfig(env) {
         { source: 'Bloomberg', url: 'https://www.bloomberg.com/feed/markets' },
         { source: 'CNBC',     url: 'https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10001147' },
       ]},
+      { id: 'ai', name: '人工智能', sixty: [], rss: [
+        { source: 'MIT Tech Review', url: 'https://www.technologyreview.com/feed/' },
+        { source: 'VentureBeat',     url: 'https://feeds.feedburner.com/venturebeat/SZYF' },
+        { source: 'Ars Technica',    url: 'https://feeds.arstechnica.com/arstechnica/index' },
+        { source: 'Wired',           url: 'https://www.wired.com/feed/rss' },
+      ]},
+      { id: 'gaming', name: '游戏', sixty: [], rss: [
+        { source: 'IGN',       url: 'https://www.ign.com/rss/articles/feed' },
+        { source: 'Polygon',   url: 'https://www.polygon.com/rss/index.xml' },
+        { source: 'Eurogamer', url: 'https://www.eurogamer.net/feed' },
+      ]},
+      { id: 'science', name: '科学', sixty: [], rss: [
+        { source: 'Nature',        url: 'https://feeds.nature.com/nature/rss/current' },
+        { source: 'New Scientist', url: 'https://www.newscientist.com/feed/home' },
+      ]},
     ],
   };
 }
@@ -250,6 +265,6 @@ export default {
       }
     }
 
-    return json({ error: 'Not Found', routes: ['/api/health', '/api/categories', '/api/news?cat=dev', '/api/news?cat=world', '/api/news?cat=finance', '/api/article?url='] }, cfg, 404);
+    return json({ error: 'Not Found', routes: ['/api/health', '/api/categories', '/api/news?cat=dev', '/api/news?cat=world', '/api/news?cat=finance', '/api/news?cat=ai', '/api/news?cat=gaming', '/api/news?cat=science', '/api/article?url='] }, cfg, 404);
   },
 };
